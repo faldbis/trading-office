@@ -1,12 +1,11 @@
 import * as THREE from 'three';
-const PAIRS=['BTC','DXY','XAUUSD','GBPUSD','GBPJPY','EURUSD','GBPAUD','USDCAD','USDJPY','AUDUSD','EURAUD'];
+const PAIRS=['GBPJPY','DXY','XAUUSD','GBPUSD','GBPAUD','USDCAD','USDJPY','AUDUSD'];
 const price={},prev={};
 const AG=[
 {id:'gold',name:'محلل الذهب والدولار',pairs:['XAUUSD','DXY'],c:0xf5b301,p:[-6,0,-4]},
 {id:'gbp',name:'محلل الباوند',pairs:['GBPUSD','GBPJPY','GBPAUD'],c:0x4f8cff,p:[-2,0,-4]},
-{id:'eur',name:'محلل اليورو والين',pairs:['EURUSD','EURAUD','USDJPY'],c:0x9b5cff,p:[2,0,-4]},
+{id:'eur',name:'محلل الين',pairs:['USDJPY'],c:0x9b5cff,p:[2,0,-4]},
 {id:'com',name:'محلل السلع والكوموديتي',pairs:['USDCAD','AUDUSD'],c:0x2ecc71,p:[6,0,-4]},
-{id:'btc',name:'محلل البيتكوين',pairs:['BTC'],c:0xff7a1a,p:[-4,0,2]},
 {id:'risk',name:'مدير المخاطر',pairs:[],c:0xe74c3c,p:[1,0,3],info:'مخاطرة 1% من الرصيد بكل صفقة'},
 {id:'exec',name:'المنفّذ',pairs:[],c:0x1abc9c,p:[6,0,3],info:'ينفذ على MT5 ديمو 114086449'}];
 const $=s=>document.querySelector(s);
@@ -64,7 +63,7 @@ const fmt=n=>n==null?'—':(+n).toFixed(n>1000?2:n>50?3:5);
 function setP(k,val){if(val==null||isNaN(val))return;prev[k]=price[k];price[k]=val}
 async function j(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw r.status;return r.json()}
 const SRC={};
-async function live(){try{const d=await j('api/prices');const ps=d.prices||{};for(const k in ps){if(k=='BTC'&&SRC.BTC&&SRC.BTC.startsWith('binance ws'))continue;window.onTick&&window.onTick(k,+ps[k].price);setP(k,+ps[k].price);SRC[k]=ps[k].src+' '+kt(ps[k].ts*1000)}
+async function live(){try{const d=await j('api/prices');const ps=d.prices||{};for(const k in ps){if(!PAIRS.includes(k))continue;if(k=='BTC'&&SRC.BTC&&SRC.BTC.startsWith('binance ws'))continue;window.onTick&&window.onTick(k,+ps[k].price);setP(k,+ps[k].price);SRC[k]=ps[k].src+' '+kt(ps[k].ts*1000)}
  if(Object.keys(ps).length<PAIRS.length)await fx();else drawTicker()}catch(e){console.warn('proxy fail',e);await fx()}}
 async function fx(){try{const d=(await j('https://open.er-api.com/v6/latest/USD')).rates;const u=c=>1/d[c];const F=(k,v)=>{if(!SRC[k]||SRC[k].startsWith('er-api')){setP(k,v);SRC[k]='er-api (يومي)'}};
  F('EURUSD',u('EUR'));F('GBPUSD',u('GBP'));F('AUDUSD',u('AUD'));F('USDCAD',d.CAD);F('USDJPY',d.JPY);F('GBPJPY',d.JPY/d.GBP);F('GBPAUD',d.AUD/d.GBP);F('EURAUD',d.AUD/d.EUR);
@@ -74,7 +73,7 @@ async function btc(){try{setP('BTC',+(await j('https://api.binance.com/api/v3/ti
 // BTC tick-by-tick via Binance WS (throttled to 4 paints/s), reconnect with backoff
 let wsDelay=1000;function btcWS(){try{const ws=new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');let last=0;
  ws.onopen=()=>{wsDelay=1000};ws.onmessage=m=>{const p=+JSON.parse(m.data).p;window.onTick&&window.onTick('BTC',p);if(Date.now()-last<250)return;last=Date.now();setP('BTC',p);SRC.BTC='binance ws '+kt(Date.now());drawTicker()};
- ws.onclose=()=>{setTimeout(btcWS,wsDelay);wsDelay=Math.min(wsDelay*2,60000)}}catch(e){}}btcWS();
+ ws.onclose=()=>{setTimeout(btcWS,wsDelay);wsDelay=Math.min(wsDelay*2,60000)}}catch(e){}}0;
 const shown={};
 function drawTicker(){const tk=$('#tk');if(!tk.children.length){tk.innerHTML=PAIRS.map(p=>`<span class="ti" data-p="${p}"><b>${p}</b> <span class="v">—</span></span>`).join('');
   tk.querySelectorAll('.ti').forEach(e=>e.onclick=()=>{$('#sel').value=e.dataset.p;drawSide();window.setChartPair&&window.setChartPair(e.dataset.p)})}
@@ -95,7 +94,7 @@ const ARCH=new Set(['expired','invalid']);
 const RS={failed:'فشل',expired:'منتهية',invalid:'غير صالحة',new:'جديدة',placed:'منفذة'};
 function reasonOf(s){if(s.reason)return s.reason;if(s.status=='failed')return/خروج/.test(s.note||'')?'MT5 كان مسجّل خروج':'فشل التنفيذ';if(s.status=='expired')return 'انتهت الإشارة';if(s.status=='invalid')return 'رقم الهدف غير منطقي';return ''}
 const isArch=s=>ARCH.has(s.status)||(s.status=='failed'&&Date.now()-new Date(s.time)>3*3600e3);
-async function announce(s){const a=AG.find(x=>x.pairs.includes(s.pair))||ag('btc'),rk=ag('risk'),ex=ag('exec'),dir=s.direction=='buy'?'شراء':'بيع';
+async function announce(s){const a=AG.find(x=>x.pairs.includes(s.pair))||ag('gold'),rk=ag('risk'),ex=ag('exec'),dir=s.direction=='buy'?'شراء':'بيع';
  while(a.busy)await new Promise(r=>setTimeout(r,500));a.busy=true;
  try{say(a,`إشارة ${dir} بعد ثبوت ساعة على ${s.pair}${s.example?' (مثال)':''}`);await walk(a,near(rk,a));
  say(rk,`مخاطرة 1% = 1,000$ من 100,000 → اللوت ${lot(s)} (وقف ${s.stop})`);await walk(a,near(ex,a));

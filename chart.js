@@ -2,7 +2,7 @@ async function CJ(p){try{const r=await fetch('api/candles?pair='+p+'&interval=60
 // Live chart panel: TradingView Advanced Chart widget; fallback/levels mode = lightweight-charts fed by Binance (BTC) / server Yahoo proxy (rest)
 (function(){
 const TV={BTC:'BINANCE:BTCUSDT',XAUUSD:'OANDA:XAUUSD',DXY:'TVC:DXY'};const tvs=p=>TV[p]||'FX:'+p;
-let pair='BTC',mode='tv',tvOK=false,chart,ser,lines=[],bar=null,ws,timer;
+let pair='GBPJPY',mode='tv',tvOK=false,chart,ser,lines=[],bar=null,ws,timer;
 const $=s=>document.querySelector(s);
 function loadTV(cb){if(window.TradingView)return cb(true);const s=document.createElement('script');s.src='https://s3.tradingview.com/tv.js';s.onload=()=>cb(!!window.TradingView);s.onerror=()=>cb(false);document.head.appendChild(s);setTimeout(()=>cb(!!window.TradingView),8000)}
 function drawTV(){$('#tvbox').innerHTML='<div id="tvw" style="height:100%"></div>';
