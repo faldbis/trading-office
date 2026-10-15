@@ -1,0 +1,31 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مكتب زخم للتداول</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d0f14;color:#e8e8ea;font-family:Tahoma,Arial,sans-serif;overflow:hidden;height:100vh;display:grid;grid-template-rows:42px 1fr 1fr 170px;grid-template-columns:300px 1fr 300px;grid-template-areas:"t t t" "c s p" "c ch p" "b b b"}
+#ticker{grid-area:t;background:#151821;border-bottom:2px solid #ff7a1a;display:flex;gap:18px;align-items:center;padding:0 12px;overflow-x:auto;white-space:nowrap;font-size:13px}
+#ticker b{color:#ff9a3c}.up{color:#3ddc84}.dn{color:#ff5c5c}#tk{display:flex;gap:18px;overflow-x:auto;flex:1;min-width:0}#clock{flex:none;color:#ff9a3c}
+#scene{grid-area:s;position:relative}#scene canvas{display:block}
+.panel{background:#12151d;border:1px solid #232838;overflow:auto;padding:10px}
+.panel h3{margin:0 0 8px;color:#ff7a1a;font-size:15px}
+#chat{grid-area:c}#side{grid-area:p}#board{grid-area:b;display:grid;grid-template-columns:repeat(4,1fr) 1.2fr;gap:8px}
+.msg{background:#1b1f2b;border-right:3px solid var(--c);padding:6px 8px;margin-bottom:6px;border-radius:6px;font-size:13px}.msg small{color:#888;display:block}
+.col{background:#171a24;border-radius:8px;padding:6px;overflow:auto}.col h4{margin:0 0 6px;color:#ff9a3c;font-size:13px}
+.card{background:#222737;border-radius:6px;padding:5px 7px;margin-bottom:5px;font-size:12px;cursor:pointer}
+.tag{position:absolute;transform:translate(-50%,-100%);font-size:11px;padding:2px 6px;border-radius:8px;color:#fff;pointer-events:none;white-space:nowrap}
+.bub{position:absolute;transform:translate(-50%,-100%);background:#fff;color:#111;font-size:12px;padding:4px 8px;border-radius:10px;pointer-events:none;max-width:200px}
+table{width:100%;font-size:13px}td{padding:3px}select{width:100%;background:#1b1f2b;color:#eee;border:1px solid #ff7a1a;padding:4px}
+@media (max-width:800px){html,body{overflow-x:hidden;width:100%}body{overflow-y:auto;height:auto;display:block}#scene{overflow:hidden;width:100%}.bub{max-width:150px}#ticker{position:sticky;top:0;z-index:5;height:42px}#scene{height:55vh}.panel{max-height:none}#chat{height:260px}#board{grid-template-columns:repeat(2,1fr)}.arch{grid-column:1/-1}#ticker{font-size:12px}}
+#chartp{grid-area:ch;display:flex;flex-direction:column;padding:6px;border-top:3px solid #ff7a1a;min-height:0}
+#chartbar{display:flex;gap:6px;align-items:center;margin-bottom:4px;font-size:13px}#chartbar button{background:#1b1f2b;color:#eee;border:1px solid #333;border-radius:5px;padding:2px 8px;cursor:pointer}#chartbar button.on{border-color:#ff7a1a;color:#ff9a3c}
+#chartbox{flex:1;min-height:0;position:relative}#chartbox>div{position:absolute;inset:0}
+.ti{cursor:pointer;padding:2px 6px;border-radius:5px}.ti.sel{background:#2a2f40}.v{padding:1px 3px;border-radius:3px}
+.fl-up{animation:fu .7s}.fl-dn{animation:fd .7s}@keyframes fu{0%{background:#1f7a45;color:#fff}100%{background:none}}@keyframes fd{0%{background:#8a2a2a;color:#fff}100%{background:none}}
+@media (max-width:800px){#chartp{height:420px}}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script></head><body>
+<div id="ticker"><div id="tk"></div><span id="clock"></span></div>
+<div id="chat" class="panel"><h3>محادثة الفريق</h3><div id="msgs"></div></div>
+<div id="scene"></div>
+<div id="chartp" class="panel"><div id="chartbar"><b id="chtitle" style="color:#ff7a1a">BTC</b><span style="flex:1"></span><button id="mTV" class="on">TradingView</button><button id="mLW">مستويات الاستراتيجية</button></div><div id="chartbox"><div id="tvbox"></div><div id="lwbox" style="display:none"></div></div></div>
+<div id="side" class="panel"><h3>إشارة الزوج</h3><select id="sel"></select><div id="sig"></div><h3 style="margin-top:14px">الوكيل المحدد</h3><div id="agentInfo">اضغط على أي شخصية</div></div>
+<div id="board" class="panel" style="padding:8px"></div>
+<script src="vendor/lightweight-charts.js"></script><script src="chart.js"></script><script type="module" src="app.js"></script></body></html>
